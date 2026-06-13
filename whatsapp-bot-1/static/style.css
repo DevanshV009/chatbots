@@ -27,3 +27,32 @@ button {
     color: green;
     font-weight: bold;
 }
+
+.chat-box {
+
+    height: 300px;
+
+    border: 1px solid #ccc;
+
+    padding: 10px;
+
+    overflow-y: scroll;
+
+    background: white;
+
+    margin-bottom: 10px;
+}
+
+input {
+
+    width: 70%;
+
+    padding: 10px;
+}
+
+button {
+
+    padding: 10px 20px;
+
+    cursor: pointer;
+}

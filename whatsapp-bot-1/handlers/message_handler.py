@@ -1,41 +1,66 @@
-# Message routing logic
-from handlers.lead_flow import (
-    product_menu,
-    capture_name,
-    capture_email,
-    capture_phone
-)
+user_state = {}
 
-step = 0
+lead_data = {}
 
-def get_reply(message):
+def get_reply(user_id, message):
 
-    global step
+    msg = message.strip()
 
-    msg = message.lower()
+    if user_id not in user_state:
 
-    if msg == "hi" or msg == "hello":
-        step = 1
-        return product_menu()
+        user_state[user_id] = "category"
 
-    elif step == 1:
-        step = 2
-        return capture_name(msg)
+        return """
+🛍 Welcome to E-Commerce Store
 
-    elif step == 2:
-        step = 3
-        return capture_email(msg)
+Choose Category:
 
-    elif step == 3:
-        step = 4
-        return capture_phone(msg)
+1. Electronics
+2. Fashion
+3. Home & Kitchen
+"""
 
-    elif step == 4:
-        step = 0
-        from handlers.lead_flow import finalize_lead
-        return finalize_lead(msg)
+    state = user_state[user_id]
 
-    return (
-        "👋 Welcome to E-Commerce Store\n\n"
-        "Type Hi to start."
-    )
+    if state == "category":
+
+        lead_data[user_id] = {
+            "category": msg
+        }
+
+        user_state[user_id] = "name"
+
+        return "Please enter your name."
+
+    elif state == "name":
+
+        lead_data[user_id]["name"] = msg
+
+        user_state[user_id] = "email"
+
+        return "Please enter your email."
+
+    elif state == "email":
+
+        lead_data[user_id]["email"] = msg
+
+        user_state[user_id] = "phone"
+
+        return "Please enter your phone number."
+
+    elif state == "phone":
+
+        lead_data[user_id]["phone"] = msg
+
+        user_state[user_id] = "completed"
+
+        return f"""
+✅ Lead Captured Successfully
+
+Category: {lead_data[user_id]['category']}
+Name: {lead_data[user_id]['name']}
+Email: {lead_data[user_id]['email']}
+Phone: {lead_data[user_id]['phone']}
+"""
+
+    return "Lead already captured."

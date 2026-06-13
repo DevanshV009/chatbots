@@ -1,9 +1,15 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
     <title>E-Commerce Lead Capture Bot</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+
 </head>
+
 <body>
 
 <div class="container">
@@ -36,11 +42,17 @@
 
         <h2>Chat Simulation</h2>
 
-        <button onclick="testBot()">
-            Start Demo
-        </button>
+        <div id="chat-box"></div>
 
-        <p id="chat"></p>
+        <input
+            type="text"
+            id="message"
+            placeholder="Type your message here..."
+        >
+
+        <button onclick="sendMessage()">
+            Send
+        </button>
 
     </div>
 
@@ -49,4 +61,5 @@
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 
 </body>
+
 </html>
