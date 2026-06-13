@@ -1,9 +1,8 @@
-# Lead database model
 class Lead:
 
-    def __init__(self, name, phone):
-        self.name = name
-        self.phone = phone
+    def __init__(self):
 
-    def __str__(self):
-        return f"{self.name} - {self.phone}"
+        self.name = ""
+        self.email = ""
+        self.phone = ""
+        self.category = ""

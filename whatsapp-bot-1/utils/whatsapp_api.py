@@ -1,3 +1,5 @@
-# WhatsApp API helper functions
-def send_whatsapp_message(message):
-    print(f"Sending message: {message}")
+def send_message(phone, message):
+
+    print(
+        f"Sending '{message}' to {phone}"
+    )

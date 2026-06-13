@@ -1,8 +1,16 @@
-# Conversation flow tests
-from handlers.lead_flow import get_products
+from handlers.message_handler import get_reply
 
-def test_products():
+def test_welcome_message():
 
-    products = get_products()
+    response = get_reply("Hi")
 
-    assert "Shoes" in products
+    assert "E-Commerce Store" in response
+
+
+def test_category_menu():
+
+    response = get_reply("Hi")
+
+    assert "Electronics" in response
+    assert "Fashion" in response
+    assert "Home & Kitchen" in response

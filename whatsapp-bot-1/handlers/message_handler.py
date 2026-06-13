@@ -1,29 +1,41 @@
 # Message routing logic
-from handlers.lead_flow import get_products
+from handlers.lead_flow import (
+    product_menu,
+    capture_name,
+    capture_email,
+    capture_phone
+)
+
+step = 0
 
 def get_reply(message):
 
-    msg = message.lower().strip()
+    global step
 
-    if msg in ["hi", "hello", "hey"]:
-        return """
-Welcome to Dev Store 🛒
+    msg = message.lower()
 
-1. View Products
-2. Contact Support
-3. Track Order
+    if msg == "hi" or msg == "hello":
+        step = 1
+        return product_menu()
 
-Reply with a number.
-"""
+    elif step == 1:
+        step = 2
+        return capture_name(msg)
 
-    elif msg == "1":
-        return get_products()
+    elif step == 2:
+        step = 3
+        return capture_email(msg)
 
-    elif msg == "2":
-        return "📞 Our support team will contact you shortly."
+    elif step == 3:
+        step = 4
+        return capture_phone(msg)
 
-    elif msg == "3":
-        return "🚚 Please enter your Order ID."
+    elif step == 4:
+        step = 0
+        from handlers.lead_flow import finalize_lead
+        return finalize_lead(msg)
 
-    else:
-        return "❌ Invalid option. Reply with 1, 2 or 3."
+    return (
+        "👋 Welcome to E-Commerce Store\n\n"
+        "Type Hi to start."
+    )
