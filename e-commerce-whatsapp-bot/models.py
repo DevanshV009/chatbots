@@ -31,7 +31,9 @@ from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from extensions import db
- 
+from config import Config
+
+
  
 # ─── Admin ────────────────────────────────────────────────────────────────────
  
@@ -79,10 +81,9 @@ class Lead(db.Model):
  
     @property
     def temperature(self) -> str:
-        """HOT / WARM / COLD classification based on score."""
-        if self.score >= 70:
+        if self.score >= Config.LEAD_HOT_THRESHOLD:
             return "HOT"
-        elif self.score >= 40:
+        elif self.score >= Config.LEAD_WARM_THRESHOLD:
             return "WARM"
         return "COLD"
  
@@ -228,4 +229,5 @@ class FAQ(db.Model):
  
     def __repr__(self):
         return f"<FAQ [{self.category}] {self.question[:50]}>"
+ 
  

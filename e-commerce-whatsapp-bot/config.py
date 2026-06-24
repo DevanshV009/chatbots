@@ -10,6 +10,7 @@ Usage in app factory:
 """
  
 import os
+import sys
 from dotenv import load_dotenv
  
 # Loads .env file when running locally; in production env vars are set directly.
@@ -53,9 +54,8 @@ class Config:
     ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
  
     # ── Lead scoring thresholds ───────────────────────────────────────────────
-    LEAD_HOT_THRESHOLD  = 70   # score >= 70 → HOT
-    LEAD_WARM_THRESHOLD = 40   # score >= 40 → WARM
-    #                            score <  40 → COLD
+    LEAD_HOT_THRESHOLD  = int(os.environ.get("LEAD_HOT_THRESHOLD",  70))
+    LEAD_WARM_THRESHOLD = int(os.environ.get("LEAD_WARM_THRESHOLD", 40))
  
  
 class DevelopmentConfig(Config):
@@ -84,3 +84,12 @@ config_map = {
     "default":     DevelopmentConfig,
 }
  
+ 
+# raise an error in production instead of using a weak default
+
+_raw_password = os.environ.get("ADMIN_PASSWORD", "")
+if not _raw_password:
+    if os.environ.get("FLASK_ENV") == "production":
+        sys.exit("❌ ADMIN_PASSWORD must be set in production!")
+    _raw_password = "admin123-dev-only"
+ADMIN_PASSWORD = _raw_password 

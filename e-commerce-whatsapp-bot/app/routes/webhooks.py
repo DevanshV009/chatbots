@@ -19,6 +19,8 @@ Flow for every incoming message:
 import logging
 from flask import Blueprint, request, jsonify, current_app
 from app.services.bot import handle_message
+from twilio.request_validator import RequestValidator
+from flask import abort
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +83,12 @@ def twilio_receive():
         reply = handle_message(phone=phone, text=text, channel="twilio")
         if reply:
             send_message(phone, reply)
-
+    
+    validator = RequestValidator(current_app.config["TWILIO_AUTH_TOKEN"])
+    url = request.url
+    if not validator.validate(url, request.form, request.headers.get("X-Twilio-Signature", "")):
+        abort(403)
+    
     # Twilio requires HTTP 200 + valid XML or it retries the message
     return (
         '<?xml version="1.0" encoding="UTF-8"?><Response></Response>',

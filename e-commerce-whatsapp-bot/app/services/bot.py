@@ -585,4 +585,4 @@ def _bot_name() -> str:
 
 def _is_restart(text: str) -> bool:
     """Check if user wants to go back to the main menu."""
-    return text.lower() in ("hi", "hello", "hey", "start", "menu", "restart", "/start")
+    return text.lower() in ("hi", "hello", "hey", "start", "menu", "restart", "/start", "0")
