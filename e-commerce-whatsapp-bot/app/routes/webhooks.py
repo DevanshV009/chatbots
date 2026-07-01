@@ -66,18 +66,20 @@ def meta_receive():
 
 @webhooks_bp.post("/twilio")
 def twilio_receive():
-    """
-    Receive and process incoming WhatsApp messages from Twilio.
-    Twilio sends form-encoded POST data.
-    We reply with an empty TwiML <Response> (Twilio ignores the body anyway
-    when we send replies via the REST API, not TwiML).
-    """
+    # ── Validate Twilio signature FIRST ──
+    from twilio.request_validator import RequestValidator
+    validator = RequestValidator(current_app.config["TWILIO_AUTH_TOKEN"])
+    if not validator.validate(
+        request.url,
+        request.form,
+        request.headers.get("X-Twilio-Signature", "")
+    ):
+        abort(403)
+
+    # ── Only process AFTER validation passes ──
     from app.channels.twilio import parse_incoming, send_message
-
     logger.debug(f"[Twilio webhook] form: {dict(request.form)}")
-
     phone, text = parse_incoming(request.form)
-
     if phone and text:
         logger.info(f"[Twilio] Incoming from {phone}: {text!r}")
         reply = handle_message(phone=phone, text=text, channel="twilio")
