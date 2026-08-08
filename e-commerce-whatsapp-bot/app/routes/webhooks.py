@@ -64,19 +64,24 @@ def meta_receive():
 
 # ─── Twilio Sandbox ───────────────────────────────────────────────────────────
 
+def _twilio_signature_valid():
+    if current_app.testing or not current_app.config.get("TWILIO_VALIDATE_SIGNATURE", True):
+        return True
+    validator = RequestValidator(current_app.config["TWILIO_AUTH_TOKEN"])
+    signature = request.headers.get("X-Twilio-Signature", "")
+    url = request.url
+    forwarded_proto = request.headers.get("X-Forwarded-Proto")
+    if forwarded_proto and url.startswith("http://"):
+        url = "https://" + url[len("http://"):]
+    return validator.validate(url, request.form, signature)
+
+
 @webhooks_bp.post("/twilio")
 def twilio_receive():
-    # ── Validate Twilio signature FIRST ──
-    from twilio.request_validator import RequestValidator
-    validator = RequestValidator(current_app.config["TWILIO_AUTH_TOKEN"])
-    if not validator.validate(
-        request.url,
-        request.form,
-        request.headers.get("X-Twilio-Signature", "")
-    ):
+    if not _twilio_signature_valid():
+        logger.warning("[Twilio] Signature validation failed - check the webhook URL configured in the Twilio Console matches this server's public URL, and that TWILIO_AUTH_TOKEN matches the Console.")
         abort(403)
 
-    # ── Only process AFTER validation passes ──
     from app.channels.twilio import parse_incoming, send_message
     logger.debug(f"[Twilio webhook] form: {dict(request.form)}")
     phone, text = parse_incoming(request.form)
@@ -85,13 +90,7 @@ def twilio_receive():
         reply = handle_message(phone=phone, text=text, channel="twilio")
         if reply:
             send_message(phone, reply)
-    
-    validator = RequestValidator(current_app.config["TWILIO_AUTH_TOKEN"])
-    url = request.url
-    if not validator.validate(url, request.form, request.headers.get("X-Twilio-Signature", "")):
-        abort(403)
-    
-    # Twilio requires HTTP 200 + valid XML or it retries the message
+
     return (
         '<?xml version="1.0" encoding="UTF-8"?><Response></Response>',
         200,
